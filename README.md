@@ -1,4 +1,4 @@
-# GitHub Actions YAML Runner
+# BEAM Action - A GitHub Actions YAML Runner
 
 A framework to run GitHub Actions workflow YAML files locally or in CI using Elixir and Nix. This allows you to test and debug your GitHub Actions workflows without pushing to GitHub. At the same time you can run the same program in any CI (incuding GH Actions).
 
