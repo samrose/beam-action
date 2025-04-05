@@ -1,0 +1,11 @@
+name: Example Workflow
+jobs:
+  build:
+    steps:
+      - run: echo "Building the project"
+      - run: sleep 2
+      - run: echo "Build complete!!!"
+  test:
+    needs: build
+    steps:
+      - run: echo "Running tests"
