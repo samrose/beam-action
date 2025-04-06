@@ -31,6 +31,7 @@ jobs:
                 - run: echo "Hello from test workflow"
                 - run: date
                 - run: pwd
+                - run: nix --version
           EOF
           
           # Run using the local build result
