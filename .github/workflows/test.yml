@@ -12,10 +12,14 @@ jobs:
     env:
       SHELL: /bin/bash  # Explicitly set SHELL environment variable
     steps:
+      - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Run test workflow
         run: |
+          # Build the current commit into a local flake output
+          nix build .#
+          
           # Create test workflow file
           cat > test-workflow.yml <<EOF
           name: Test
@@ -29,5 +33,5 @@ jobs:
                 - run: pwd
           EOF
           
-          # Run with explicit SHELL setting
-          nix run github:samrose/beam-action -- test-workflow.yml 
+          # Run using the local build result
+          ./result/bin/gh-runner test-workflow.yml 
