@@ -18,9 +18,10 @@ jobs:
       - name: Run Tests
         run: |
           cd beam_action
+          nix develop -c mix local.hex --force
           nix develop -c mix test
 
       - name: Cleanup Nix
         if: always()
         run: |
-          /nix/nix-installer uninstall 
+          /nix/nix-installer uninstall --no-confirm 
