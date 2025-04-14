@@ -1,0 +1,26 @@
+name: Test with Nix Installer
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test with Nix Installer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Run Tests
+        run: |
+          cd beam_action
+          nix develop -c mix test
+
+      - name: Cleanup Nix
+        if: always()
+        run: |
+          /nix/nix-installer uninstall 
