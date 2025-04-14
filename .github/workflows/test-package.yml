@@ -15,27 +15,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Build and Run Test Workflow
+      - name: Test Package
         run: |
-          # Build the current commit into a local flake output
-          nix build .#
-          
-          # Create test workflow file
-          cat > test-package-workflow.yml <<EOF
-          name: Test Package
-          on: [push]
-          jobs:
-            test:
-              runs-on: ubuntu-latest
-              steps:
-                - run: |
-                    nix develop && \
-                    cd beam_action && \
-                    mix test
-          EOF
-          
-          # Run using the local build result
-          ./result/bin/gh-runner test-package-workflow.yml
+          nix develop && \
+          cd beam_action && \
+          mix test
 
       - name: Cleanup
         if: always()
