@@ -28,11 +28,9 @@ jobs:
             test:
               runs-on: ubuntu-latest
               steps:
-                - run: cd beam_action
-                - run: nix develop -c mix local.hex --force
-                - run: nix develop -c mix deps.get
-                - run: nix develop -c mix test
-                - run: echo "Package tests completed successfully"
+                - run: |
+                    cd beam_action && \
+                    mix test
           EOF
           
           # Run using the local build result
