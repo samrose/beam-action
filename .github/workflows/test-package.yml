@@ -29,6 +29,7 @@ jobs:
               runs-on: ubuntu-latest
               steps:
                 - run: |
+                    nix develop
                     cd beam_action && \
                     mix test
           EOF
