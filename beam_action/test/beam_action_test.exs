@@ -44,7 +44,7 @@ defmodule BeamActionTest do
 
   test "handles non-existent file gracefully" do
     output = capture_io(fn ->
-      BeamAction.run_workflow("nonexistent.yml")
+      assert catch_exit(BeamAction.run_workflow("nonexistent.yml")) == 1
     end)
 
     assert output =~ "Failed to read file"
@@ -56,7 +56,7 @@ defmodule BeamActionTest do
     File.write!(invalid_path, "invalid: yaml: {")
 
     output = capture_io(fn ->
-      BeamAction.run_workflow(invalid_path)
+      assert catch_exit(BeamAction.run_workflow(invalid_path)) == 1
     end)
 
     assert output =~ "Failed to parse YAML"
@@ -69,7 +69,7 @@ defmodule BeamActionTest do
     File.write!(empty_path, "name: Empty Workflow\non: push\njobs: {}")
 
     output = capture_io(fn ->
-      BeamAction.run_workflow(empty_path)
+      assert catch_exit(BeamAction.run_workflow(empty_path)) == 1
     end)
 
     assert output =~ "No jobs found in workflow"
@@ -89,7 +89,7 @@ defmodule BeamActionTest do
     """)
 
     output = capture_io(fn ->
-      BeamAction.run_workflow(no_steps_path)
+      assert catch_exit(BeamAction.run_workflow(no_steps_path)) == 1
     end)
 
     assert output =~ "Running job: empty-job"
@@ -111,10 +111,32 @@ defmodule BeamActionTest do
     """)
 
     output = capture_io(fn ->
-      BeamAction.run_workflow(no_run_path)
+      assert catch_exit(BeamAction.run_workflow(no_run_path)) == 1
     end)
 
     assert output =~ "Skipping step (no 'run' command)"
     File.rm!(no_run_path)
+  end
+
+  test "handles failing command" do
+    tmp_dir = System.tmp_dir!()
+    failing_path = Path.join(tmp_dir, "failing.yml")
+    File.write!(failing_path, """
+    name: Failing Command
+    on: push
+    jobs:
+      failing-job:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Failing Step
+            run: exit 1
+    """)
+
+    output = capture_io(fn ->
+      assert catch_exit(BeamAction.run_workflow(failing_path)) == 1
+    end)
+
+    assert output =~ "Command failed with exit code: 1"
+    File.rm!(failing_path)
   end
 end

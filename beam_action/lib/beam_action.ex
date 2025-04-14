@@ -14,14 +14,17 @@ defmodule BeamAction do
             jobs = Map.get(workflow, "jobs", %{})
             if map_size(jobs) == 0 do
               IO.puts("No jobs found in workflow")
+              System.halt(1)
             else
               execute_jobs(jobs)
             end
           {:error, reason} ->
             IO.puts("Failed to parse YAML: #{inspect(reason)}")
+            System.halt(1)
         end
       {:error, reason} ->
         IO.puts("Failed to read file: #{inspect(reason)}")
+        System.halt(1)
     end
   end
 
@@ -34,6 +37,7 @@ defmodule BeamAction do
       steps = Map.get(job_details, "steps", [])
       if Enum.empty?(steps) do
         IO.puts("No steps found in job")
+        System.halt(1)
       else
         execute_steps(steps)
       end
@@ -46,10 +50,15 @@ defmodule BeamAction do
   def execute_steps(steps) do
     Enum.each(steps || [], fn step ->
       case Map.get(step, "run") do
-        nil -> IO.puts("Skipping step (no 'run' command)")
+        nil ->
+          IO.puts("Skipping step (no 'run' command)")
+          System.halt(1)
         command ->
           IO.puts("Executing: #{command}")
-          run_command(command)
+          case run_command(command) do
+            :ok -> :ok
+            {:error, _} -> System.halt(1)
+          end
       end
     end)
   end
@@ -71,12 +80,16 @@ defmodule BeamAction do
         case status do
           :normal ->
             IO.puts("Command completed successfully")
+            :ok
           {:exit_status, 0} ->
             IO.puts("Command completed successfully")
+            :ok
           {:exit_status, code} ->
             IO.puts("Command failed with exit code: #{code}")
+            {:error, code}
           other ->
             IO.puts("Command terminated with unexpected status: #{inspect(other)}")
+            {:error, other}
         end
     end
   end

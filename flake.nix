@@ -14,7 +14,7 @@
           #!/usr/bin/env elixir
 
           Mix.install([
-            {:beam_action, "~> 0.1.0"}
+            {:beam_action, path: "${self}/beam_action"}
           ])
 
           defmodule GhRunner do
