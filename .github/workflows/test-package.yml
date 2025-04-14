@@ -17,9 +17,7 @@ jobs:
 
       - name: Test Package
         run: |
-          nix develop && \
-          cd beam_action && \
-          mix test
+          nix develop -c sh -c "cd beam_action && mix test"
 
       - name: Cleanup
         if: always()
