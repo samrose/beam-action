@@ -3,6 +3,14 @@ defmodule BeamAction do
   GitHub Actions YAML Runner in Elixir
   """
 
+  defp halt_with_error(code) do
+    if Mix.env() == :test do
+      exit(code)  # This can be caught with catch_exit in tests
+    else
+      System.halt(code)  # This will terminate the process in production
+    end
+  end
+
   @doc """
   Main entry point for running a GitHub Actions workflow from a YAML file.
   """
@@ -14,17 +22,17 @@ defmodule BeamAction do
             jobs = Map.get(workflow, "jobs", %{})
             if map_size(jobs) == 0 do
               IO.puts("No jobs found in workflow")
-              System.halt(1)
+              halt_with_error(1)
             else
               execute_jobs(jobs)
             end
           {:error, reason} ->
             IO.puts("Failed to parse YAML: #{inspect(reason)}")
-            System.halt(1)
+            halt_with_error(1)
         end
       {:error, reason} ->
         IO.puts("Failed to read file: #{inspect(reason)}")
-        System.halt(1)
+        halt_with_error(1)
     end
   end
 
@@ -37,7 +45,7 @@ defmodule BeamAction do
       steps = Map.get(job_details, "steps", [])
       if Enum.empty?(steps) do
         IO.puts("No steps found in job")
-        System.halt(1)
+        halt_with_error(1)
       else
         execute_steps(steps)
       end
@@ -52,12 +60,12 @@ defmodule BeamAction do
       case Map.get(step, "run") do
         nil ->
           IO.puts("Skipping step (no 'run' command)")
-          System.halt(1)
+          halt_with_error(1)
         command ->
           IO.puts("Executing: #{command}")
           case run_command(command) do
             :ok -> :ok
-            {:error, _} -> System.halt(1)
+            {:error, _} -> halt_with_error(1)
           end
       end
     end)

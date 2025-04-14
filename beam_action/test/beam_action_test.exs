@@ -114,6 +114,7 @@ defmodule BeamActionTest do
       assert catch_exit(BeamAction.run_workflow(no_run_path)) == 1
     end)
 
+    assert output =~ "Running job: no-run-job"
     assert output =~ "Skipping step (no 'run' command)"
     File.rm!(no_run_path)
   end
@@ -136,7 +137,7 @@ defmodule BeamActionTest do
       assert catch_exit(BeamAction.run_workflow(failing_path)) == 1
     end)
 
-    assert output =~ "Command failed with exit code: 1"
+    assert output =~ "Command failed with exit code: 256"
     File.rm!(failing_path)
   end
 end
