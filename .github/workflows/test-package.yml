@@ -1,0 +1,44 @@
+name: Test Runner
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SHELL: /bin/bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build and Run Test Workflow
+        run: |
+          # Build the current commit into a local flake output
+          nix build .#
+          
+          # Create test workflow file
+          cat > test-package-workflow.yml <<EOF
+          name: Test Package
+          on: [push]
+          jobs:
+            test:
+              runs-on: ubuntu-latest
+              steps:
+                - run: cd beam_action
+                - run: nix develop -c mix local.hex --force
+                - run: nix develop -c mix deps.get
+                - run: nix develop -c mix test
+                - run: echo "Package tests completed successfully"
+          EOF
+          
+          # Run using the local build result
+          ./result/bin/gh-runner test-package-workflow.yml
+
+      - name: Cleanup
+        if: always()
+        run: |
+          /nix/nix-installer uninstall --no-confirm
