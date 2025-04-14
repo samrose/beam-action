@@ -1,0 +1,25 @@
+name: Test Package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SHELL: /bin/bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Test Package
+        run: |
+          nix develop -c bash -c "cd beam_action && mix local.hex --force && mix deps.get && mix test --trace"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          /nix/nix-installer uninstall --no-confirm
