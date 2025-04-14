@@ -17,7 +17,7 @@ jobs:
 
       - name: Test Package
         run: |
-          nix develop -c sh -c "cd beam_action && mix local.hex --force && mix deps.get && mix test"
+          run: nix develop -c bash -c "cd beam_action && mix local.hex --force && mix deps.get && mix test --trace"
 
       - name: Cleanup
         if: always()
